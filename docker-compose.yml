@@ -1,0 +1,40 @@
+services:
+#  init-northwind:
+#    image: curlimages/curl:8.7.1
+#    container_name: init-northwind
+    #    command: >
+    #  sh -c "
+    #  set -e;
+    #  mkdir -p /seed;
+    #  echo 'Descargando Northwind SQL...';
+    #  curl -fsSL
+    #  https://raw.githubusercontent.com/pthom/northwind_psql/master/northwind.sql
+    #  -o /seed/001-northwind.sql;
+    #  echo 'Listo: /seed/001-northwind.sql';
+    #  "
+    #    volumes:
+    #      - /home/aenadmin/dockers/northwind-db/seed:/seed
+    #   restart: "no"
+
+  db:
+    image: postgres:16
+    container_name: northwind-db
+    environment:
+      POSTGRES_USER: northwind
+      POSTGRES_PASSWORD: northwind
+      POSTGRES_DB: northwind
+    command: ["postgres","-c","TimeZone=America/Argentina/Buenos_Aires"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - /home/aenadmin/dockers/northwind-db/data:/var/lib/postgresql/data
+      - /home/aenadmin/dockers/northwind-db/seed:/docker-entrypoint-initdb.d:ro
+#   depends_on:
+#      init-northwind:
+#        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U northwind -d northwind"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
